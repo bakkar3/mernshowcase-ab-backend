@@ -110,25 +110,35 @@ app.post("/signup", async (req, res) => {
 });
 
 // approveuser
-// app.post("/approveuser", async (req, res) => {
-//   const id = req.body.id;
-//   let user = await req.session.user;
-//   console.log(user);
-//   if (!user) {
-//     res.sendStatus(403);
-//   } else {
-//     if (!userIsInGroup(user, "admins")) {
-//       res.sendStatus(403);
-//     } else {
-//       const updateResult = await UserModel.findOneAndUpdate(
-//         { _id: new mongoose.Types.ObjectId(id) },
-//         { $set: { accessGroups: "loggedInUsers,members" } },
-//         { new: true }
-//       );
-//       res.json({ result: updateResult });
-//     }
-//   }
-// });
+app.post("/approveuser", async (req, res) => {
+  const id = req.body.id;
+  let user = await req.session.user;
+  console.log(user);
+  if (!user) {
+    res.sendStatus(403);
+  } else {
+    if (!userIsInGroup(user, "admins")) {
+      res.sendStatus(403);
+    } else {
+      const updateResult = await UserModel.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId(id) },
+        { $set: { accessGroups: "loggedInUsers,members" } },
+        { new: true }
+      );
+      res.json({ result: updateResult });
+    }
+  }
+});
+
+// notyetapprovedusers
+app.get("/notyetapprovedusers", async (req, res) => {
+  const users = await UserModel.find({
+    accessGroups: { $regex: "notYetApprovedUsers", $options: "i" },
+  });
+  res.json({
+    users,
+  });
+});
 
 app.listen(PORT, (req, res) => {
   console.log(`API listening on port http://localhost:${PORT}`);
