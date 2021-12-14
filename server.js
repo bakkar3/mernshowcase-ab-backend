@@ -87,17 +87,14 @@ app.get("/logout", async (req, res) => {
   res.json(user);
 });
 
-// SIGNUP
-// const salt = await bcrypt.genSalt(8);
-// const hash = await bcrypt.hash(password1);
-// const user = await UserModel.create({
-//   login,
-//   firstName,
-//   lastName,
-//   email,
-//   hash,
-//   accessGroups: "loggedInUsers,notYetApprovedUsers",
-// });
+app.delete("/deleteuser", async (req, res) => {
+  const _id = req.body._id;
+  const user = await UserModel.findByIdAndDelete({
+    _id: new mongoose.Types.ObjectId(_id),
+  });
+  res.json({ user });
+});
+
 
 app.post("/signup", async (req, res) => {
   const user = req.body.user;
@@ -116,7 +113,7 @@ app.post("/signup", async (req, res) => {
       login: user.login,
       email: user.email,
       hash,
-      accessGroups: "loggedINUser, notYetApprovedUsers",
+      accessGroups: "loggedInUser, notYetApprovedUsers",
     };
     const dbuser = await UserModel.create(_user);
     res.json({

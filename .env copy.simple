@@ -1,3 +1,4 @@
  MONGOURI=mongodb://localhost:27017/mernshowcase
  SECRET=SESSION_SECRET
  SALT=8
+ .env
