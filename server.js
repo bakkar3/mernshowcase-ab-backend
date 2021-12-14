@@ -15,21 +15,39 @@ mongoose.connect(process.env.MONGOURI);
 const app = express();
 const PORT = 3003;
 
+const userIsInGroup = (user, accessGroup) => {
+  const accessGroupArray = user.accessGroups.split(",").map((m) => m.trim());
+  return accessGroupArray.includes(accessGroup);
+};
+
+// app.set("trust proxy", 1); // allow / trust Heroku proxy to forward secure cookies
+app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:3000",
-    credentials: true,
+    origin: process.env.ORIGIN_URL || "http://localhost:3000",
+    credentials: true, // accept incoming cookies
   })
 );
-app.use(express.json());
-app.use(cookieParser());
+
+// Configure SESSION COOKIES (=> this will create a cookie in the browser once we set some data into req.session)
 app.use(
   session({
+    name: "sessId",
+    secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
-    secret: process.env.SESSION_SECRET || "tempsecret",
+    cookie: {
+      httpOnly: true, // httpOnly => cookie can just be written from API and not by Javascript
+      maxAge: 60 * 1000 * 30, // 30 minutes of inactivity
+      // sameSite: "none", // allow cookies transfered from OTHER origin
+      // secure: true, // allow cookies to be set just via HTTPS
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+    },
   })
 );
+
+app.use(cookieParser());
 
 app.get("/user", async (req, res) => {
   const user = await UserModel.find();
@@ -98,7 +116,7 @@ app.post("/signup", async (req, res) => {
       login: user.login,
       email: user.email,
       hash,
-      accessGroups: "loggedINUser, notYetAbrovedUsers",
+      accessGroups: "loggedINUser, notYetApprovedUsers",
     };
     const dbuser = await UserModel.create(_user);
     res.json({
@@ -111,8 +129,9 @@ app.post("/signup", async (req, res) => {
 
 // approveuser
 app.post("/approveuser", async (req, res) => {
+  console.log(req.body);
   const id = req.body.id;
-  let user = await req.session.user;
+  let user = req.session.user;
   console.log(user);
   if (!user) {
     res.sendStatus(403);
@@ -128,6 +147,16 @@ app.post("/approveuser", async (req, res) => {
       res.json({ result: updateResult });
     }
   }
+});
+
+// show all approved users
+app.get("/approveuser", async (req, res) => {
+  const users = await UserModel.find({
+    accessGroups: { $regex: "members", $options: "i" },
+  });
+  res.json({
+    users,
+  });
 });
 
 // notyetapprovedusers
