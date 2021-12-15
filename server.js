@@ -21,7 +21,7 @@ const userIsInGroup = (user, accessGroup) => {
   return accessGroupArray.includes(accessGroup);
 };
 
-// app.set("trust proxy", 1); // allow / trust Heroku proxy to forward secure cookies
+app.set("trust proxy", 1); // allow / trust Heroku proxy to forward secure cookies
 app.use(express.json());
 app.use(
   cors({
