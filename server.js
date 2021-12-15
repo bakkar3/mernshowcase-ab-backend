@@ -1,5 +1,5 @@
 import express from "express";
-import session from "cookie-session";
+import session from "express-session";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -7,6 +7,8 @@ import mongoose from "mongoose";
 import UserModel from "./models/UserModel.js";
 import bcrypt from "bcrypt";
 
+// const MongoStore = require('connect-mongo')(session);
+import MongoStore from 'connect-mongo'
 dotenv.config();
 mongoose.connect(process.env.MONGOURI);
 
@@ -33,6 +35,7 @@ app.use(
   session({
     name: "sessId",
     secret: process.env.SESSION_SECRET,
+    store: MongoStore.create({ mongoUrl: process.env.MONGOURI }),
     resave: true,
     saveUninitialized: true,
     cookie: {
