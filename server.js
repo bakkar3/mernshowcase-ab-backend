@@ -8,7 +8,7 @@ import UserModel from "./models/UserModel.js";
 import bcrypt from "bcrypt";
 
 // const MongoStore = require('connect-mongo')(session);
-import MongoStore from 'connect-mongo'
+// import MongoStore from 'connect-mongo'
 dotenv.config();
 mongoose.connect(process.env.MONGOURI);
 
@@ -35,7 +35,7 @@ app.use(
   session({
     name: "sessId",
     secret: process.env.SESSION_SECRET,
-    store: MongoStore.create({ mongoUrl: process.env.MONGOURI }),
+    // store: MongoStore.create({ mongoUrl: process.env.MONGOURI }),
     resave: true,
     saveUninitialized: true,
     cookie: {
