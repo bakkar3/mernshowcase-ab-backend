@@ -11,8 +11,8 @@ dotenv.config();
 mongoose.connect(process.env.MONGOURI);
 
 const app = express();
-const PORT = 3003 || 3016;
-// const PORT = process.env.PORT || 3016;
+// const PORT = 3003 || 3016;
+const PORT = process.env.PORT || 3016;
 
 const userIsInGroup = (user, accessGroup) => {
   const accessGroupArray = user.accessGroups.split(",").map((m) => m.trim());
