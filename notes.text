@@ -1,3 +1,4 @@
+import database von file /user.json/ to mongodb-atlas
 # mongoimport --host cluster0-shard-00-01.qtqt3.mongodb.net:27017 --db mernshowcase --collection users --type json --file users.json --jsonArray --authenticationDatabase admin --ssl --username user2
 ## heroku login
 ### heroku logs -a mernshowcase-ab-backend --tail
